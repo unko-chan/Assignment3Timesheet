@@ -12,11 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.HexFormat;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -124,18 +120,8 @@ public class AuthServiceTest {
         u.setId(1L);
         u.setUsername(username);
         u.setActive(true);
-        u.setPasswordHash(sha256(plain));
+        u.setPassword(plain);
         return u;
-    }
-
-    private static String sha256(String s) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(s.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static void setField(Object target, String field, Object value) throws Exception {
@@ -153,7 +139,7 @@ public class AuthServiceTest {
     private static class FakeAuthTokenDAO extends AuthTokenDAO {
         AuthToken token;
         AuthToken lastCreated;
-        @Override public AuthToken findByToken(String t) { return token != null && Objects.equals(token.getToken(), t) ? token : null; }
+        @Override public AuthToken findByToken(String t) { return token != null && java.util.Objects.equals(token.getToken(), t) ? token : null; }
         @Override public AuthToken create(AuthToken a) { this.lastCreated = a; this.token = a; return a; }
         @Override public AuthToken update(AuthToken a) { this.token = a; return a; }
     }

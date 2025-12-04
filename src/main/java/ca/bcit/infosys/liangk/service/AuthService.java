@@ -13,9 +13,6 @@ import ca.bcit.infosys.liangk.util.Mapper;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
@@ -40,8 +37,8 @@ public class AuthService {
         if (u == null) throw new UnauthorizedException("Invalid username or password");
         if (!u.isActive()) throw new UnauthorizedException("User account is inactive");
 
-        String providedHash = hashPassword(req.getPassword());
-        if (!providedHash.equals(u.getPasswordHash())) {
+        // Compare plaintext password directly to stored value (no hashing)
+        if (!req.getPassword().equals(u.getPassword())) {
             throw new UnauthorizedException("Invalid username or password");
         }
 
@@ -85,16 +82,6 @@ public class AuthService {
     }
 
     private static boolean isBlank(String s) { return s == null || s.trim().isEmpty(); }
-
-    private static String hashPassword(String plain) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(plain.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
-    }
 
     private static String generateToken() {
         byte[] bytes = new byte[32]; // 256-bit -> 64 hex chars

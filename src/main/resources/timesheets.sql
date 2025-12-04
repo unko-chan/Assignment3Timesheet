@@ -2,9 +2,6 @@
 -- COMP3910 Assignment 3 - Timesheet Service Schema
 -- ============================================================================
 
--- Drop the DB if it already exists
-DROP DATABASE IF EXISTS `timesheets`;
-
 CREATE DATABASE IF NOT EXISTS `timesheets`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE `timesheets`;
@@ -19,7 +16,7 @@ USE `timesheets`;
 CREATE TABLE users (
                        id               INT UNSIGNED NOT NULL AUTO_INCREMENT,
                        username         VARCHAR(64)  NOT NULL,
-                       password_hash    VARCHAR(255) NOT NULL,
+                       password    VARCHAR(255) NOT NULL,
                        first_name       VARCHAR(100) NOT NULL,
                        last_name        VARCHAR(100) NOT NULL,
                        employee_number  INT UNSIGNED NOT NULL,
@@ -156,7 +153,7 @@ CREATE INDEX idx_entries_work_date
 
 INSERT INTO users (
     username,
-    password_hash,
+    password,
     first_name,
     last_name,
     employee_number,
@@ -164,7 +161,7 @@ INSERT INTO users (
     active
 ) VALUES (
              'admin',
-             '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
+             'admin',
              'System',
              'Administrator',
              1,

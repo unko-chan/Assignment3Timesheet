@@ -66,7 +66,7 @@ public final class Mapper {
         u.setEmployeeNumber(req.getEmployeeNumber());
         u.setRole(req.getRole() == null ? UserRole.USER : req.getRole());
         u.setActive(req.getActive() == null ? true : req.getActive());
-        // Password hash must be set by service after hashing plain password
+        // Password must be set by service layer (stored as plaintext per current requirement)
         return u;
     }
 
@@ -78,6 +78,6 @@ public final class Mapper {
         if (req.getEmployeeNumber() != null) user.setEmployeeNumber(req.getEmployeeNumber());
         if (req.getRole() != null) user.setRole(req.getRole());
         if (req.getActive() != null) user.setActive(req.getActive());
-        // Password is handled by service (hashing), not here
+        // Password is handled by service, not here
     }
 }

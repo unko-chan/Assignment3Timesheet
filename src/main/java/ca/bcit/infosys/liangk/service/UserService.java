@@ -10,10 +10,6 @@ import ca.bcit.infosys.liangk.util.Mapper;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.List;
 
 @Stateless
@@ -50,7 +46,8 @@ public class UserService {
             throw new ValidationException("Password must not be blank");
         }
         User u = Mapper.buildUserFromCreate(req);
-        u.setPasswordHash(hashPassword(req.getPassword()));
+        // Store plaintext password directly
+        u.setPassword(req.getPassword());
         return userDAO.create(u);
     }
 
@@ -97,12 +94,12 @@ public class UserService {
         // Apply other fields
         Mapper.applyUpdateToUser(existing, req);
 
-        // Password hashing if provided
+        // Password update if provided (store plaintext)
         if (req.getPassword() != null) {
             if (isBlank(req.getPassword())) {
                 throw new ValidationException("Password must not be blank");
             }
-            existing.setPasswordHash(hashPassword(req.getPassword()));
+            existing.setPassword(req.getPassword());
         }
 
         return userDAO.update(existing);
@@ -117,15 +114,5 @@ public class UserService {
     // ===== Helpers =====
     private static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
-    }
-
-    private static String hashPassword(String plain) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(plain.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 not available", e);
-        }
     }
 }

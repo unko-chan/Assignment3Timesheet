@@ -11,10 +11,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HexFormat;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,7 +69,7 @@ public class AuthServiceValidationTest {
         u.setId(1L);
         u.setUsername("jdoe");
         u.setActive(false);
-        u.setPasswordHash(sha256("secret"));
+        u.setPassword("secret");
         userDAO.user = u;
 
         LoginRequest req = new LoginRequest();
@@ -85,19 +81,9 @@ public class AuthServiceValidationTest {
 
     // ===== Helpers and fakes reused from other tests =====
     private static void setField(Object target, String field, Object value) throws Exception {
-        Field f = target.getClass().getDeclaredField(field);
+        java.lang.reflect.Field f = target.getClass().getDeclaredField(field);
         f.setAccessible(true);
         f.set(target, value);
-    }
-
-    private static String sha256(String s) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(s.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(digest);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static class FakeUserDAO extends UserDAO {

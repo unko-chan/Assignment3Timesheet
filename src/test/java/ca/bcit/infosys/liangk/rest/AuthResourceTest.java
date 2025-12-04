@@ -20,7 +20,6 @@ public class AuthResourceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        ca.bcit.infosys.liangk.testutil.SimpleJaxRsRuntime.ensureInstalled();
         resource = new AuthResource();
         authService = new FakeAuthService();
         setField(resource, "authService", authService);
