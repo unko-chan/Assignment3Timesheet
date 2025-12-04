@@ -53,12 +53,17 @@ public class UserResource {
         return Mapper.toUserDTO(u);
     }
 
-    @POST
-    public Response createUser(CreateUserRequest req, @Context UriInfo uriInfo) {
+    // Test-friendly variant that avoids Response building dependency
+    UserDTO createUserRaw(CreateUserRequest req) {
         ensureAdmin();
         User u = userService.createUser(req);
-        UserDTO dto = Mapper.toUserDTO(u);
-        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(u.getId())).build();
+        return Mapper.toUserDTO(u);
+    }
+
+    @POST
+    public Response createUser(CreateUserRequest req, @Context UriInfo uriInfo) {
+        UserDTO dto = createUserRaw(req);
+        URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(dto.getId())).build();
         return Response.created(location).entity(dto).build();
     }
 
@@ -70,11 +75,16 @@ public class UserResource {
         return Mapper.toUserDTO(updated);
     }
 
+    // Test-friendly variant for delete to avoid Response builder
+    void deleteUserRaw(long id) {
+        ensureAdmin();
+        userService.deleteUser(id);
+    }
+
     @DELETE
     @Path("/{id}")
     public Response deleteUser(@PathParam("id") long id) {
-        ensureAdmin();
-        userService.deleteUser(id);
+        deleteUserRaw(id);
         return Response.noContent().build();
     }
 }

@@ -19,10 +19,15 @@ public class AuthResource {
     @Inject
     private AuthService authService;
 
+    // Exposed for tests to avoid needing a JAX-RS RuntimeDelegate
+    LoginResponse loginRaw(LoginRequest request) {
+        return authService.login(request);
+    }
+
     @POST
     @Path("/login")
     public Response login(LoginRequest request) {
-        LoginResponse resp = authService.login(request);
+        LoginResponse resp = loginRaw(request);
         return Response.ok(resp).build();
     }
 }
