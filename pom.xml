@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ca.bcit.infosys.liangk</groupId>
@@ -14,24 +13,30 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Java level (matches Lab 6; you can bump to 17 later if needed) -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <!-- Versions -->
+        <!-- Jakarta EE API version (matches WildFly 26) -->
         <jakartaee.version>10.0.0</jakartaee.version>
+
+        <!-- Test -->
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
 
+        <!-- WildFly / Galleon (Lab 6 versions) -->
         <version.wildfly>26.1.2.Final</version.wildfly>
         <version.wildfly.cloud.galleon.pack>1.1.2.Final</version.wildfly.cloud.galleon.pack>
         <version.wildfly.datasources.galleon.pack>2.2.0.Final</version.wildfly.datasources.galleon.pack>
         <version.wildfly.plugin>3.0.2.Final</version.wildfly.plugin>
+        <version.maven.war.plugin>3.3.2</version.maven.war.plugin>
     </properties>
 
     <dependencies>
-        <!-- Jakarta EE Web Profile: JPA, JAX-RS, CDI, EJB, JSON-B, etc. -->
+        <!-- Full Jakarta EE 8 API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-web-api</artifactId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
             <version>${jakartaee.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -43,34 +48,20 @@
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>timesheets-rest-backend</finalName>
 
         <plugins>
-            <!-- Java 17 compilation -->
+            <!-- WAR plugin (default local build) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-                <configuration>
-                    <release>17</release>
-                </configuration>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${version.maven.war.plugin}</version>
             </plugin>
 
-            <!-- Enable JUnit 5 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
-                <configuration>
-                    <useModulePath>false</useModulePath>
-                </configuration>
-            </plugin>
-
-            <!-- WildFly Maven Plugin – Lab 6 style (no Glow) -->
+            <!-- WildFly Maven Plugin: local provisioning build (Lab 6 style) -->
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
@@ -88,7 +79,6 @@
                         </feature-pack>
                     </feature-packs>
                     <layers>
-                        <!-- Same layers as Lab 6; having jsf present does not hurt a REST app -->
                         <layer>jsf</layer>
                         <layer>cloud-server</layer>
                         <layer>mysql-datasource</layer>
@@ -96,8 +86,6 @@
                     <galleon-options>
                         <jboss-fork-embedded>true</jboss-fork-embedded>
                     </galleon-options>
-                    <!-- Make the deployment be ROOT.war for OKD/Helm -->
-                    <runtime-name>ROOT.war</runtime-name>
                 </configuration>
                 <executions>
                     <execution>
@@ -108,7 +96,73 @@
                 </executions>
             </plugin>
 
-            <!-- (optional) you can keep the default maven-war-plugin, or configure it explicitly -->
+            <!-- Enforce Maven version (optional but kept from lab) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.3.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Profile used by OpenShift S2I (WildFly S2I v2) -->
+        <profile>
+            <id>openshift</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>${version.wildfly.plugin}</version>
+                        <configuration>
+                            <feature-packs>
+                                <feature-pack>
+                                    <location>org.wildfly:wildfly-galleon-pack:${version.wildfly}</location>
+                                </feature-pack>
+                                <feature-pack>
+                                    <location>org.wildfly:wildfly-datasources-galleon-pack:${version.wildfly.datasources.galleon.pack}</location>
+                                </feature-pack>
+                                <feature-pack>
+                                    <location>org.wildfly.cloud:wildfly-cloud-galleon-pack:${version.wildfly.cloud.galleon.pack}</location>
+                                </feature-pack>
+                            </feature-packs>
+                            <layers>
+                                <layer>jsf</layer>
+                                <layer>cloud-server</layer>
+                                <layer>mysql-datasource</layer>
+                            </layers>
+                            <galleon-options>
+                                <jboss-fork-embedded>true</jboss-fork-embedded>
+                            </galleon-options>
+                            <!-- ROOT.war for OKD route at / -->
+                            <runtime-name>ROOT.war</runtime-name>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>package</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
