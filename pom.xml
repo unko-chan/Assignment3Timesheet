@@ -71,8 +71,16 @@
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>${wildfly-maven-plugin.version}</version>
-                <!-- Minimal config; no wildflyVersion param so you avoid the error -->
+
+                <configuration>
+                    <discover-provisioning-info>
+                        <add-ons>
+                            <add-on>mysql</add-on>
+                        </add-ons>
+                    </discover-provisioning-info>
+                </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>
