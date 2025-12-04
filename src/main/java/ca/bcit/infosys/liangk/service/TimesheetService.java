@@ -104,6 +104,13 @@ public class TimesheetService {
         return timesheetDAO.update(ts);
     }
 
+    public void deleteTimesheet(User currentUser, long id) {
+        requireUser(currentUser);
+        Timesheet ts = getTimesheet(currentUser, id);
+        // getTimesheet enforces owner/admin access
+        timesheetDAO.delete(ts.getId());
+    }
+
     // ===== Helpers =====
     private static void requireUser(User u) {
         if (u == null) throw new ValidationException("Current user required");
