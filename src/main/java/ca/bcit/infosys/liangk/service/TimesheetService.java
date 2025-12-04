@@ -138,10 +138,20 @@ public class TimesheetService {
         if (dto.getWorkDate() == null || dto.getWorkDate().isBlank()) {
             throw new ValidationException("Entry workDate is required");
         }
+        LocalDate workDateParsed;
         try {
-            e.setWorkDate(LocalDate.parse(dto.getWorkDate()));
+            workDateParsed = LocalDate.parse(dto.getWorkDate());
+            e.setWorkDate(workDateParsed);
         } catch (Exception ex) {
             throw new ValidationException("Invalid entry workDate format, expected yyyy-MM-dd");
+        }
+        // Ensure workDate within the same week as timesheet
+        if (parent != null && parent.getWeekStart() != null) {
+            LocalDate start = parent.getWeekStart();
+            LocalDate end = start.plusDays(6);
+            if (workDateParsed.isBefore(start) || workDateParsed.isAfter(end)) {
+                throw new ValidationException("Entry workDate must fall within the timesheet week (" + start + " to " + end + ")");
+            }
         }
         // project code
         if (dto.getProjectCode() == null || dto.getProjectCode().trim().isEmpty()) {
