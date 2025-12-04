@@ -7,6 +7,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Utility mapper for converting between entities and DTOs.
+ */
 public final class Mapper {
 
     private static final DateTimeFormatter ISO_DATE = DateTimeFormatter.ISO_LOCAL_DATE;
@@ -14,6 +17,12 @@ public final class Mapper {
     private Mapper() {}
 
     // ===== Entity -> DTO =====
+    /**
+     * Maps a User entity to a UserDTO.
+     *
+     * @param u User entity
+     * @return corresponding UserDTO or null if input is null
+     */
     public static UserDTO toUserDTO(User u) {
         if (u == null) return null;
         UserDTO dto = new UserDTO();
@@ -27,6 +36,12 @@ public final class Mapper {
         return dto;
     }
 
+    /**
+     * Maps a TimesheetEntry entity to its DTO representation.
+     *
+     * @param e TimesheetEntry entity
+     * @return TimesheetEntryDTO or null if input is null
+     */
     public static TimesheetEntryDTO toTimesheetEntryDTO(TimesheetEntry e) {
         if (e == null) return null;
         TimesheetEntryDTO dto = new TimesheetEntryDTO();
@@ -39,6 +54,12 @@ public final class Mapper {
         return dto;
     }
 
+    /**
+     * Maps a Timesheet entity to its DTO representation including its entries.
+     *
+     * @param t Timesheet entity
+     * @return TimesheetDTO or null if input is null
+     */
     public static TimesheetDTO toTimesheetDTO(Timesheet t) {
         if (t == null) return null;
         TimesheetDTO dto = new TimesheetDTO();
@@ -57,6 +78,13 @@ public final class Mapper {
     }
 
     // ===== Helper builders for services (no hashing/DB here) =====
+    /**
+     * Constructs a new User entity from a CreateUserRequest. Does not set the password.
+     * The service layer is responsible for setting and validating the password.
+     *
+     * @param req create request
+     * @return partially populated User or null if request is null
+     */
     public static User buildUserFromCreate(CreateUserRequest req) {
         if (req == null) return null;
         User u = new User();
@@ -70,6 +98,13 @@ public final class Mapper {
         return u;
     }
 
+    /**
+     * Applies non-sensitive updates from an UpdateUserRequest onto an existing User entity.
+     * The password must be updated by the service layer explicitly.
+     *
+     * @param user target entity to mutate
+     * @param req  incoming updates
+     */
     public static void applyUpdateToUser(User user, UpdateUserRequest req) {
         if (user == null || req == null) return;
         if (req.getUsername() != null) user.setUsername(req.getUsername());

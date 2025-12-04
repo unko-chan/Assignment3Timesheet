@@ -2,7 +2,10 @@ package ca.bcit.infosys.liangk.dto;
 
 import ca.bcit.infosys.liangk.entity.UserRole;
 
-// All fields nullable; only apply non-null values
+/**
+ * Request payload for updating an existing user account. All fields are optional;
+ * only non-null values will be applied to the target user.
+ */
 public class UpdateUserRequest {
     private String username;
     private String password;

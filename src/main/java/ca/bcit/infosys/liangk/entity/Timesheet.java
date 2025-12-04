@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA entity representing a weekly timesheet belonging to a user.
+ * Contains total hours and a collection of entries for the week.
+ */
 @Entity
 @Table(name = "timesheets")
 public class Timesheet {

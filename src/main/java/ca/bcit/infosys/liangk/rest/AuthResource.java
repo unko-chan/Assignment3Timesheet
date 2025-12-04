@@ -11,6 +11,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+/**
+ * Authentication endpoints.
+ */
 @Path("/auth")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -19,11 +22,16 @@ public class AuthResource {
     @Inject
     private AuthService authService;
 
-    // Exposed for tests to avoid needing a JAX-RS RuntimeDelegate
+    /**
+     * Test-friendly variant for unit tests to bypass Response building.
+     */
     LoginResponse loginRaw(LoginRequest request) {
         return authService.login(request);
     }
 
+    /**
+     * Authenticates credentials and returns a bearer token with basic user info.
+     */
     @POST
     @Path("/login")
     public Response login(LoginRequest request) {

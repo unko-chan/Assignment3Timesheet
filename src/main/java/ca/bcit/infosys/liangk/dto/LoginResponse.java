@@ -1,5 +1,9 @@
 package ca.bcit.infosys.liangk.dto;
 
+/**
+ * Response payload returned by the authentication endpoint containing the bearer token
+ * and basic information about the authenticated user.
+ */
 public class LoginResponse {
     private String token;
     private UserDTO user;

@@ -5,6 +5,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data transfer object representing a timesheet and its entries.
+ */
 public class TimesheetDTO {
     private Long id;
     private String weekStart; // ISO yyyy-MM-dd

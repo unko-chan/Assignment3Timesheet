@@ -20,13 +20,30 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Business logic for managing timesheets and their entries.
+ * <p>
+ * This service enforces access control (owner or admin), uniqueness of one timesheet per
+ * user/week, and validation of entry hours and dates.
+ */
 @Stateless
 public class TimesheetService {
+
+    private static final int WEEK_LAST_DAY_OFFSET = 6; // weekStart + 6 = inclusive week end
+    private static final BigDecimal MIN_HOURS_PER_ENTRY = new BigDecimal("0.00");
+    private static final BigDecimal MAX_HOURS_PER_ENTRY = new BigDecimal("24.00");
 
     @Inject
     private TimesheetDAO timesheetDAO;
 
-    // List timesheets for the current user; optional filter by specific week
+    /**
+     * Lists timesheets for the current user, optionally filtered by a specific week start.
+     *
+     * @param currentUser the authenticated user
+     * @param weekStart   optional week start date to filter on
+     * @return list of matching timesheets (0..n)
+     * @throws ValidationException if currentUser is null
+     */
     public List<Timesheet> listTimesheets(User currentUser, Optional<LocalDate> weekStart) {
         requireUser(currentUser);
         if (weekStart != null && weekStart.isPresent()) {
@@ -38,6 +55,16 @@ public class TimesheetService {
         return timesheetDAO.findByUser(currentUser.getId());
     }
 
+    /**
+     * Retrieves a timesheet by id, enforcing that the requester is the owner or an admin.
+     *
+     * @param currentUser the authenticated user
+     * @param id          the timesheet id
+     * @return the timesheet
+     * @throws ValidationException if currentUser is null
+     * @throws NotFoundException   if the timesheet does not exist
+     * @throws ForbiddenException  if the user is not permitted to view the timesheet
+     */
     public Timesheet getTimesheet(User currentUser, long id) {
         requireUser(currentUser);
         Timesheet t = timesheetDAO.findById(id);
@@ -48,6 +75,15 @@ public class TimesheetService {
         return t;
     }
 
+    /**
+     * Creates a new timesheet for the current user.
+     * Enforces uniqueness per (user, weekStart) and validates entries if provided.
+     *
+     * @param currentUser the authenticated user
+     * @param dto         the request payload
+     * @return the created timesheet
+     * @throws ValidationException if payload invalid or uniqueness violated
+     */
     public Timesheet createTimesheet(User currentUser, TimesheetDTO dto) {
         requireUser(currentUser);
         if (dto == null) throw new ValidationException("Timesheet payload is required");
@@ -71,6 +107,18 @@ public class TimesheetService {
         return timesheetDAO.create(ts);
     }
 
+    /**
+     * Updates an existing timesheet. Week start can change if uniqueness is preserved.
+     * Entries can be fully replaced by providing a new list.
+     *
+     * @param currentUser the authenticated user
+     * @param id          the timesheet id to update
+     * @param dto         payload with fields to update
+     * @return the updated timesheet
+     * @throws ValidationException on invalid input or uniqueness violations
+     * @throws NotFoundException   if the timesheet does not exist
+     * @throws ForbiddenException  if user lacks permission
+     */
     public Timesheet updateTimesheet(User currentUser, long id, TimesheetDTO dto) {
         requireUser(currentUser);
         if (dto == null) throw new ValidationException("Timesheet payload is required");
@@ -104,6 +152,15 @@ public class TimesheetService {
         return timesheetDAO.update(ts);
     }
 
+    /**
+     * Deletes a timesheet after verifying access rights.
+     *
+     * @param currentUser the authenticated user
+     * @param id          the timesheet id to delete
+     * @throws ValidationException if currentUser is null
+     * @throws NotFoundException   if the timesheet does not exist
+     * @throws ForbiddenException  if user lacks permission
+     */
     public void deleteTimesheet(User currentUser, long id) {
         requireUser(currentUser);
         Timesheet ts = getTimesheet(currentUser, id);
@@ -148,7 +205,7 @@ public class TimesheetService {
         // Ensure workDate within the same week as timesheet
         if (parent != null && parent.getWeekStart() != null) {
             LocalDate start = parent.getWeekStart();
-            LocalDate end = start.plusDays(6);
+            LocalDate end = start.plusDays(WEEK_LAST_DAY_OFFSET);
             if (workDateParsed.isBefore(start) || workDateParsed.isAfter(end)) {
                 throw new ValidationException("Entry workDate must fall within the timesheet week (" + start + " to " + end + ")");
             }
@@ -164,7 +221,7 @@ public class TimesheetService {
             throw new ValidationException("Entry hours is required");
         }
         BigDecimal hours = dto.getHours();
-        if (hours.compareTo(BigDecimal.ZERO) < 0 || hours.compareTo(new BigDecimal("24.00")) > 0) {
+        if (hours.compareTo(MIN_HOURS_PER_ENTRY) < 0 || hours.compareTo(MAX_HOURS_PER_ENTRY) > 0) {
             throw new ValidationException("Entry hours must be between 0.00 and 24.00");
         }
         e.setHours(hours);

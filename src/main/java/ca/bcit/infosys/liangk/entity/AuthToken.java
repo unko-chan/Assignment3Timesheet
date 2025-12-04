@@ -3,6 +3,10 @@ package ca.bcit.infosys.liangk.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * JPA entity representing an authentication token issued to a user.
+ * Tokens are stored as 64-character hex strings with expiry and active flags.
+ */
 @Entity
 @Table(name = "auth_tokens")
 public class AuthToken {

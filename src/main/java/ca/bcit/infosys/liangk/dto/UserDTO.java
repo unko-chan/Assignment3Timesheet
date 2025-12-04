@@ -2,6 +2,9 @@ package ca.bcit.infosys.liangk.dto;
 
 import ca.bcit.infosys.liangk.entity.UserRole;
 
+/**
+ * Data transfer object representing the public view of a user.
+ */
 public class UserDTO {
     private Long id;
     private String username;

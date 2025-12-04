@@ -1,5 +1,8 @@
 package ca.bcit.infosys.liangk.dto;
 
+/**
+ * Login request payload carrying a username and password.
+ */
 public class LoginRequest {
     private String username;
     private String password;

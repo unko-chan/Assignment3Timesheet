@@ -2,6 +2,9 @@ package ca.bcit.infosys.liangk.dto;
 
 import ca.bcit.infosys.liangk.entity.UserRole;
 
+/**
+ * Request payload for creating a new user account.
+ */
 public class CreateUserRequest {
     private String username;
     private String password;

@@ -9,11 +9,26 @@ import jakarta.ws.rs.ext.Provider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Catch-all exception mapper that converts any uncaught Throwable into a JSON response.
+ *
+ * Behavior:
+ * - Unwraps EJBException (common on WildFly) to expose the actual cause.
+ * - If the cause is an AppException, returns a structured payload with its status.
+ * - If it's a WebApplicationException, returns its provided response.
+ * - Otherwise, logs the error and returns HTTP 500 with a generic message.
+ */
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     
     private static final Logger LOGGER = Logger.getLogger(GenericExceptionMapper.class.getName());
 
+    /**
+     * Maps the provided Throwable to an HTTP response.
+     *
+     * @param exception the exception thrown by resource processing
+     * @return JAX-RS Response suitable for the client
+     */
     @Override
     public Response toResponse(Throwable exception) {
         // 1. Unwrap EJBException if present (Common in WildFly/JBoss)

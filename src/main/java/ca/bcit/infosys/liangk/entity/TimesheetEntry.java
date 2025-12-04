@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * JPA entity representing a single work entry on a timesheet.
+ * Each entry records work date, project/task codes, hours, and description.
+ */
 @Entity
 @Table(name = "timesheet_entries")
 public class TimesheetEntry {

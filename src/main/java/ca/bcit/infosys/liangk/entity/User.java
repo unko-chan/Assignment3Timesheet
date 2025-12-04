@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * JPA entity representing an application user/employee with authentication and profile fields.
+ */
 @Entity
 @Table(name = "users")
 public class User {

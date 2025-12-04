@@ -14,11 +14,18 @@ import jakarta.ws.rs.ext.Provider;
 
 import java.io.IOException;
 
+/**
+ * ContainerRequestFilter that enforces bearer-token authentication on all endpoints
+ * except the login endpoint and HTTP OPTIONS preflight requests.
+ */
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class AuthFilter implements ContainerRequestFilter {
 
     public static final String REQ_PROP_CURRENT_USER = "currentUser";
+    private static final String HTTP_OPTIONS = "OPTIONS";
+    private static final String LOGIN_PATH = "auth/login";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Inject
     AuthService authService;
@@ -26,10 +33,18 @@ public class AuthFilter implements ContainerRequestFilter {
     @Inject
     CurrentUserHolder currentUserHolder;
 
+    /**
+     * Validates Authorization header for non-login requests and stores the authenticated user
+     * into the request-scoped holder and request properties.
+     *
+     * @param requestContext container request context
+     * @throws IOException not expected in normal flow
+     * @throws UnauthorizedException if the Authorization header is missing/invalid or token fails validation
+     */
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         // Allow preflight requests without auth
-        if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+        if (HTTP_OPTIONS.equalsIgnoreCase(requestContext.getMethod())) {
             return;
         }
 
@@ -37,7 +52,7 @@ public class AuthFilter implements ContainerRequestFilter {
         String path = uriInfo.getPath(); // relative to ApplicationPath (e.g., "auth/login")
         if (path != null) {
             String normalized = path.startsWith("/") ? path.substring(1) : path;
-            if (normalized.equals("auth/login") || normalized.startsWith("auth/login")) {
+            if (normalized.equals(LOGIN_PATH) || normalized.startsWith(LOGIN_PATH)) {
                 return; // Skip auth for login endpoint
             }
         }
@@ -46,11 +61,10 @@ public class AuthFilter implements ContainerRequestFilter {
         if (authHeader == null || authHeader.isBlank()) {
             throw new UnauthorizedException("Missing Authorization header");
         }
-        String prefix = "Bearer ";
-        if (!authHeader.startsWith(prefix)) {
+        if (!authHeader.startsWith(BEARER_PREFIX)) {
             throw new UnauthorizedException("Authorization header must be in the format 'Bearer <token>'");
         }
-        String token = authHeader.substring(prefix.length()).trim();
+        String token = authHeader.substring(BEARER_PREFIX.length()).trim();
         if (token.isEmpty()) {
             throw new UnauthorizedException("Token is empty");
         }

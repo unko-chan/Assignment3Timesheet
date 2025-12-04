@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Timesheet REST endpoints for listing, retrieving, creating, updating and deleting timesheets
+ * for the authenticated user (or by admins, as enforced in the service layer).
+ */
 @Path("/timesheets")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -34,6 +38,9 @@ public class TimesheetResource {
         return currentUserHolder.getUser();
     }
 
+    /**
+     * Lists timesheets for the current user. Optional filter on weekStart (yyyy-MM-dd).
+     */
     @GET
     public List<TimesheetDTO> list(@QueryParam("weekStart") String weekStart) {
         Optional<LocalDate> weekOpt = Optional.empty();
@@ -44,6 +51,9 @@ public class TimesheetResource {
         return ts.stream().map(Mapper::toTimesheetDTO).collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a single timesheet by id.
+     */
     @GET
     @Path("/{id}")
     public TimesheetDTO get(@PathParam("id") long id) {
@@ -51,6 +61,9 @@ public class TimesheetResource {
         return Mapper.toTimesheetDTO(t);
     }
 
+    /**
+     * Creates a new timesheet from the provided payload.
+     */
     @POST
     public Response create(TimesheetDTO dto, @Context UriInfo uriInfo) {
         Timesheet created = timesheetService.createTimesheet(current(), dto);
@@ -58,6 +71,9 @@ public class TimesheetResource {
         return Response.created(location).entity(Mapper.toTimesheetDTO(created)).build();
     }
 
+    /**
+     * Updates an existing timesheet.
+     */
     @PUT
     @Path("/{id}")
     public TimesheetDTO update(@PathParam("id") long id, TimesheetDTO dto) {
@@ -65,6 +81,9 @@ public class TimesheetResource {
         return Mapper.toTimesheetDTO(updated);
     }
 
+    /**
+     * Deletes a timesheet.
+     */
     @DELETE
     @Path("/{id}")
     public Response delete(@PathParam("id") long id) {

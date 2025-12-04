@@ -2,6 +2,9 @@ package ca.bcit.infosys.liangk.dto;
 
 import java.math.BigDecimal;
 
+/**
+ * Data transfer object representing a single timesheet entry.
+ */
 public class TimesheetEntryDTO {
     private Long id;
     private String workDate; // ISO yyyy-MM-dd
