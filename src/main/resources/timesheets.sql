@@ -42,7 +42,7 @@ COLLATE = utf8mb4_unicode_ci;
 -- ============================================================================
 
 CREATE TABLE auth_tokens (
-                             token       CHAR(64)      NOT NULL,
+                             token       VARCHAR(64)      NOT NULL,
                              user_id     INT UNSIGNED  NOT NULL,
                              issued_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
                              expires_at  DATETIME      NOT NULL,
