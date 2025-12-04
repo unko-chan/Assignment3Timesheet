@@ -20,6 +20,9 @@
         <jakartaee.version>10.0.0</jakartaee.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
         <wildfly-maven-plugin.version>5.0.0.Final</wildfly-maven-plugin.version>
+
+        <!-- WildFly server version used by the OKD image -->
+        <wildfly.version>26.1.2.Final</wildfly.version>
     </properties>
 
     <dependencies>
@@ -66,7 +69,6 @@
                 </configuration>
             </plugin>
 
-            <!-- WildFly Maven Plugin (for wildfly:dev, deploy, etc.) -->
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
@@ -74,13 +76,31 @@
 
                 <configuration>
                     <discover-provisioning-info>
+                        <!-- Match the version used in the labs/OKD WildFly image -->
+                        <version>${wildfly.version}</version>
+                        <verbose>true</verbose>
+                        <!-- Tell WildFly we’re running in cloud/OKD -->
+                        <context>cloud</context>
                         <add-ons>
+                            <!-- Install MySQL DataSource support -->
                             <add-on>mysql</add-on>
                         </add-ons>
                     </discover-provisioning-info>
+                    <galleon-options>
+                        <jboss-fork-embedded>true</jboss-fork-embedded>
+                    </galleon-options>
+                    <!-- Make the deployed WAR be ROOT.war (so it’s at /) -->
+                    <runtime-name>ROOT.war</runtime-name>
                 </configuration>
-            </plugin>
 
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
