@@ -3,11 +3,11 @@
 -- ============================================================================
 
 -- Drop the DB if it already exists
-DROP DATABASE IF EXISTS `comp3910_timesheets`;
+DROP DATABASE IF EXISTS `timesheets`;
 
-CREATE DATABASE IF NOT EXISTS `comp3910_timesheets`
+CREATE DATABASE IF NOT EXISTS `timesheets`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `comp3910_timesheets`;
+USE `timesheets`;
 
 -- ============================================================================
 -- TABLE: users
@@ -164,7 +164,7 @@ INSERT INTO users (
     active
 ) VALUES (
              'admin',
-             'admin-hash-change-me',  -- TODO: replace with real hash
+             '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918',
              'System',
              'Administrator',
              1,
