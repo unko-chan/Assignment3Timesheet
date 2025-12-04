@@ -9,13 +9,12 @@ build:
 
 deploy:
   replicas: 1
-
-env:
-  - name: MYSQL_DATABASE
-    value: timesheets
-  - name: MYSQL_USER
-    value: timesheets
-  - name: MYSQL_PASSWORD
-    value: timesheets
-  - name: MYSQL_DATASOURCE
-    value: TimesheetsDS
+  env:
+    - name: MYSQL_DATABASE
+      value: timesheets
+    - name: MYSQL_USER
+      value: timesheets
+    - name: MYSQL_PASSWORD
+      value: timesheets
+    - name: MYSQL_DATASOURCE
+      value: TimesheetsDS
