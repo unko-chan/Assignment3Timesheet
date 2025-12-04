@@ -16,36 +16,18 @@
     </properties>
 
     <dependencies>
-        <!-- Jakarta EE APIs provided by WildFly -->
+        <!-- Jakarta EE 10 aggregate API for compile-time (provided at runtime by server) -->
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.1.0</version>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>10.0.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>jakarta.ejb</groupId>
-            <artifactId>jakarta.ejb-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
+
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
             <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.json.bind</groupId>
-            <artifactId>jakarta.json.bind-api</artifactId>
-            <version>3.0.0</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Testing -->
